@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "twisb.exploration.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BundleContentsComponentInterface",
+    "FilledMapItemMixin",
+    "MapStateMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}

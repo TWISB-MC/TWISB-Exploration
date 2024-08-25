@@ -1,0 +1,8 @@
+{
+  "item.twisb-exploration.atlas": "Atlas",
+  "item.twisb-exploration.atlas.fullness": "%s/%s", 
+  "item.twisb-exploration.atlas.scale": "Scaling at 1:%s",
+  "item.twisb-exploration.atlas.level": "(Level %s/%s)",
+  "item.twisb-exploration.atlas.wrong_scale": "All maps in an Atlas must have the same scale",
+  "item.twisb-exploration.atlas.wrong_dimension": "All maps in an Atlas must be of the same dimension"
+}

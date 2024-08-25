@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "twisb.exploration.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "DebugHudMixin",
+    "HeldItemRendererMixin",
+    "InGameHudMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}
