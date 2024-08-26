@@ -3,13 +3,13 @@
 	"id": "twisb-exploration",
 	"version": "${version}",
 	"name": "TWISB-exploration",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Exploration, the way it should be! This mod adds an atlas item to contain all your maps, and makes compasses more useful",
 	"authors": [
-		"Me!"
+		"SunScript_"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://modrinth.com/mod/twisb-exploration",
+		"sources": "https://github.com/TWISB-MC/TWISB-Exploration"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/twisb-exploration/icon.png",

@@ -6,6 +6,7 @@ import net.minecraft.component.type.BundleContentsComponent;
 import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.*;
@@ -27,7 +28,10 @@ import org.apache.commons.lang3.math.Fraction;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import twisb.exploration.mixin.FilledMapItemInterface;
+import twisb.exploration.mixin.FilledMapItemMixin;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -78,6 +82,7 @@ public class AtlasItem extends NetworkSyncedItem {
             BundleContentsComponent bundleContentsComponent = (BundleContentsComponent) atlasItem.get(DataComponentTypes.BUNDLE_CONTENTS);
             MapIdComponent mapId = atlasItem.get(DataComponentTypes.MAP_ID);
             MapState mapState = mapId == null ? null : FilledMapItem.getMapState(mapId, world);
+            byte targetScale = mapState == null ? 0 : mapState.scale; // If no current state default is zero
             if (emptyMaps == null) {
                 // If no empty maps in inventory fail
                 return TypedActionResult.fail(atlasItem);
@@ -90,33 +95,57 @@ public class AtlasItem extends NetworkSyncedItem {
             } else if (bundleContentsComponent.getOccupancy().equals(Fraction.ONE)) {
                 // If atlas full fail
                 return TypedActionResult.fail(atlasItem);
+            } else if (user.getInventory().count(Items.PAPER) < targetScale) {
+                // If not enough paper to upscale fail
+                return TypedActionResult.fail(atlasItem);
             } else {
-                BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(bundleContentsComponent);
+                // Create map
+                ItemStack filledMap = FilledMapItem.createMap(world, user.getBlockX(), user.getBlockZ(), (byte)0, true, false);
                 emptyMaps.decrementUnlessCreative(1, user);
                 user.incrementStat(Stats.USED.getOrCreateStat(emptyMaps.getItem()));
                 user.getWorld().playSoundFromEntity((PlayerEntity)null, user, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, user.getSoundCategory(), 1.0F, 1.0F);
-                ItemStack filledMap = FilledMapItem.createMap(world, user.getBlockX(), user.getBlockZ(), (byte)0, true, false);
+                // Upscale it if needed
+//                LOGGER.info("Target scale is %s/4".formatted(new Object[]{targetScale}));
+                if (targetScale > 0) {
+                    removeNpaper(user, targetScale);
+                    for (int i = 0; i < targetScale; i++) {
+                        FilledMapItemInterface.invokeScale(filledMap, world);
+                    }
+                }
+                // Add map to atlas
+                BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(bundleContentsComponent);
                 builder.add(filledMap);
                 atlasItem.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
-                if (emptyMaps.isEmpty()) {
-                    return TypedActionResult.pass(atlasItem);
-                } else {
-                    return TypedActionResult.pass(atlasItem);
-                }
+                return TypedActionResult.pass(atlasItem);
             }
         }
     }
-    public static final Predicate<ItemStack> IS_EMPTY_MAP = (stack) -> stack.isOf(Items.MAP);
+    public static void removeNpaper(PlayerEntity player, int N) {
+        Inventory inv = player.getInventory();
+        for(int i = 0; i < inv.size(); ++i) {
+            ItemStack stack = inv.getStack(i);
+            if (!stack.isOf(Items.PAPER)) continue;
+            ItemStack taken = stack.split(N);
+//            LOGGER.info("Removing " + taken.getCount() + " paper from one stack");
+            N -= taken.getCount();
+            if (N <= 0) return;
+        }
+    }
+
     private static ItemStack findEmptyMapItem(PlayerEntity player) {
         Inventory inv = player.getInventory();
         for(int i = 0; i < inv.size(); ++i) {
             ItemStack stack = inv.getStack(i);
-            if (IS_EMPTY_MAP.test(stack)) {
+            if (stack.isOf(Items.MAP)) {
                 return stack;
             }
         }
         return null;
     }
+
+//    private ItemStack findPaper(PlayerEntity player) {
+//        player.getInventory().count(Items.PAPER);
+//    }
 
     private static ItemStack updateRelevantMap(ItemStack atlas, World world, PlayerEntity player) {
         BundleContentsComponent bundleContentsComponent = (BundleContentsComponent)atlas.get(DataComponentTypes.BUNDLE_CONTENTS);

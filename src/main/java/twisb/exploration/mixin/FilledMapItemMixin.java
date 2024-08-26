@@ -12,24 +12,30 @@ import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(FilledMapItem.class)
 public class FilledMapItemMixin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("twisb-exploration");
 
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        ItemStack map = user.getStackInHand(hand);
-        MapIdComponent mapIdComponent = map.get(DataComponentTypes.MAP_ID);
-        MapState ms1 = FilledMapItem.getMapState(mapIdComponent, world);
-        // Both ways works, but problem seems client vs server
-        //MapState ms2 = FilledMapItem.getMapState(mapIdComponent, user.getWorld());
-//        if (world.isClient()) {
-//            LOGGER.info("Client sees: " + ms1.dimension);
-//        } else {
-//            LOGGER.info("Server sees: " + ms1.dimension);
-//        }
+//    @Invoker("scale")
+//    public static void invokeScale(ItemStack map, World world) {
+//        throw new AssertionError();
+//    }
 
-        return TypedActionResult.pass(map);
-    }
+//    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+//        ItemStack map = user.getStackInHand(hand);
+//        MapIdComponent mapIdComponent = map.get(DataComponentTypes.MAP_ID);
+//        MapState ms1 = FilledMapItem.getMapState(mapIdComponent, world);
+////        // Both ways works, but problem seems client vs server
+////        MapState ms2 = FilledMapItem.getMapState(mapIdComponent, user.getWorld());
+////        if (world.isClient()) {
+////            LOGGER.info("Client sees: " + ms1.dimension);
+////        } else {
+////            LOGGER.info("Server sees: " + ms1.dimension);
+////        }
+//
+//        return TypedActionResult.pass(map);
+//    }
 }
